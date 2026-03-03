@@ -4,37 +4,25 @@ import Swal from 'sweetalert2';
 export default function FiltroUptime({ onObtener }) {
   const [valor, setValor] = useState(1);
   const [unidad, setUnidad] = useState("dias");
+  const limite = unidad === 'dias' ? 30 : 72;
 
   const validarYEnviar = () => {
-    if (!valor || valor <= 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Valor inválido',
-        text: 'Por favor, ingrese un número mayor a cero.',
-        confirmButtonColor: '#ff7033',
-      });
-      return;
-    }
-    if (unidad === 'dias' && valor > 30) {
+    const num = Math.floor(valor); 
+    if (num < 1 || num > limite) {
       Swal.fire({
         icon: 'error',
-        title: 'Límite excedido',
-        text: 'No se puede buscar: El valor máximo permitido es de 30 días.',
+        title: num < 1 ? 'Valor inválido' : 'Límite excedido',
+        text: `Por favor, ingrese un valor entre 1 y ${limite} ${unidad}.`,
         confirmButtonColor: '#ff7033',
       });
+      if (num > limite) setValor(limite);
+      if (num < 1) setValor(1);
       return;
     }
-    if (unidad === 'horas' && valor > 72) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Límite excedido',
-        text: 'No se puede buscar: El valor máximo permitido es de 72 horas.',
-        confirmButtonColor: '#ff7033',
-      });
-      return;
-    }
-    onObtener(valor, unidad);
+
+    onObtener(num, unidad);
   };
+
   return (
     <div className="flex flex-col items-center mb-6">
       <div className="flex items-center gap-3 relative">
@@ -43,18 +31,25 @@ export default function FiltroUptime({ onObtener }) {
         </span>
         <input 
           type="number" 
+          min="1" 
+          max={limite}
           className="w-16 h-9 border-2 border-slate-300 rounded text-center text-lg font-bold outline-none focus:border-orange-500 transition-colors"
           value={valor} 
-          onChange={(e) => setValor(Number(e.target.value))}
+          onChange={(e) => setValor(e.target.value)} 
         />
         <select 
           className="h-9 px-3 border-2 border-slate-300 rounded text-sm bg-white outline-none cursor-pointer font-bold focus:border-orange-500"
           value={unidad}
-          onChange={(e) => setUnidad(e.target.value)}
+          onChange={(e) => {
+            setUnidad(e.target.value);
+            const nuevoLimite = e.target.value === 'dias' ? 30 : 72;
+            if (valor > nuevoLimite) setValor(nuevoLimite);
+          }}
         >
           <option value="dias">días</option>
           <option value="horas">horas</option>
         </select>
+
         <div className="group relative">
           <div className="w-5 h-5 bg-slate-200 text-slate-600 rounded-full flex items-center justify-center text-[10px] font-black cursor-help hover:bg-slate-300 transition-colors">
             ?
