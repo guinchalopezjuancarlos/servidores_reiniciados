@@ -22,6 +22,8 @@ export default function FiltroUptime({ onObtener }) {
 
     onObtener(num, unidad);
   };
+   
+ 
 
   return (
     <div className="flex flex-col items-center mb-6">
